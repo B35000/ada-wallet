@@ -4,7 +4,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 class App extends Component {
   
   state={
-    
+    existential_deposit:''
   }
 
 
@@ -12,6 +12,7 @@ class App extends Component {
     return(
       <div>
         <p> Hello world</p>
+        <p>existential deposit: {this.state.existential_deposit}</p>
       </div>
     )
   }
@@ -28,6 +29,7 @@ class App extends Component {
     await api.isReady;
     var existential_deposit = api.consts.balances.existentialDeposit.toNumber() / 1000000000000
     console.log('existential deposit amount: ', existential_deposit)
+    this.setState({existential_deposit: existential_deposit})
   }
 
 
