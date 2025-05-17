@@ -1,14 +1,10 @@
 import React, { Component, useRef, useEffect } from 'react';
-import { Bip32PrivateKey } from "@emurgo/cardano-serialization-lib-browser";
-import { mnemonicToEntropy, generateMnemonic } from 'bip39';
-import { Buffer } from 'buffer';
-
-window.Buffer = window.Buffer || Buffer;
+import { ApiPromise, WsProvider } from '@polkadot/api'; 
 
 class App extends Component {
   
   state={
-    address:''
+    
   }
 
 
@@ -16,7 +12,6 @@ class App extends Component {
     return(
       <div>
         <p> Hello world</p>
-        <p>Address: {this.state.address}</p>
       </div>
     )
   }
@@ -24,18 +19,18 @@ class App extends Component {
   componentDidMount(){
     console.log('mounted')
 
-    const mnemonic = generateMnemonic()
-    const entropy = mnemonicToEntropy(mnemonic);
-    const rootKey = Bip32PrivateKey.from_bip39_entropy(
-      Buffer.from(entropy, "hex"), 
-      new Uint8Array(3) // No password
-    );
-    const accountKey = rootKey.derive(1852).derive(1815).derive(0);
-    const publicKey = accountKey.to_public();
-    const address = publicKey.to_bech32()
-    console.log(address)
-    this.setState({address: address})
+    this.get_existential_deposit()
   }
+
+  get_existential_deposit = async () => {
+    const wsProvider = new WsProvider('wss://rpc.polkadot.io');
+    const api = await ApiPromise.create({ provider: wsProvider });
+    await api.isReady;
+    var existential_deposit = api.consts.balances.existentialDeposit.toNumber() / 1000000000000
+    console.log('existential deposit amount: ', existential_deposit)
+  }
+
+
 }
 
 export default App;
